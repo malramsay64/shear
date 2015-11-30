@@ -1,0 +1,29 @@
+size=200
+q=0.1 1 5
+totalTime=0.5
+A=0
+dt=1e-7
+delta=0.15
+delay=1
+flags=--range
+
+
+empty=
+space=$(empty) $(empty)
+
+allVars:=$(foreach i, $(totalTime), _-t_$i)
+allVars:=$(if $(dt), $(foreach i, $(dt), $(addsuffix _-f_$i, $(allVars))))
+allVars:=$(if $(size), $(foreach i, $(size), $(addsuffix _-s_$i, $(allVars))))
+allVars:=$(if $q, $(foreach i, $q, $(addsuffix _-q_$i, $(allVars))))
+allVars:=$(if $A, $(foreach i, $A, $(addsuffix _-a_$i, $(allVars))))
+allVars:=$(if $(delta), $(foreach i, $(delta), $(addsuffix _-d_$i, $(allVars))))
+allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
+
+all: $(allVars)
+	mv data.out run.out
+
+$(allVars):
+	./shear $(subst _,$(space),$@) $(flags) >> data.out
+
+plot:
+	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' ../plots/single.plot; done;
