@@ -25,5 +25,5 @@ $(allVars):
 	./shear $(subst _,$(space),$@) $(flags) >> data.out
 
 plot:
-	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' $(plot_dir)/single.plot; done;
-	gnuplot $(plot_dir)/dist.plot
+	$(foreach f,$(wildcard *.dat), gnuplot -e 'fname="${f:%.dat=%}"' $(plot_dir)/single.plot;) 
+	export PATH=$(PATH); gnuplot $(plot_dir)/dist.plot

@@ -2,12 +2,12 @@ set terminal pdf enhanced
 
 infiles=system('ls *.dat | head -n 8')
 nLines(f) = system("grep -cvP '\\S' ".f)
-getMean(f) = system("./mean.py ".f." | tail -n 1")
-getVar(f) = system("./var.py ".f." | tail -n 1")
+getMean(f) = system("mean.py ".f." | tail -n 1")
+getVar(f) = system("var.py ".f." | tail -n 1")
 getA(f) = system("echo ".f." | cut -d- -f6")
 
-getHist(f) = system("./hist.py ".f." | head -n -2")
-getStats(f) = system("./hist.py ".f." | tail -n 1")
+getHist(f) = system("hist.py ".f." | head -n -2")
+getStats(f) = system("hist.py ".f." | tail -n 1")
 
 binwidth=1e-9
 bin(x,width)=width*floor(x/width)
