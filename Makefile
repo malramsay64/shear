@@ -1,21 +1,20 @@
 stab_dir=stab-dir
 vel_dir=vel-dir
 
+plot_dir=$(shell pwd)/plots
+export plot_dir
+
 dirs=$(stab_dir) $(vel_dir)
 builds=stab vel
 
 all: $(builds)
 
 .PHONY: $(builds)
-$(builds): % : update-% 
+$(builds): % : update-%
 	echo $(MAKE) -C $@-dir
 
-
-plot-stab: update-stab | $(stab_dir)
-	$(MAKE) -C $(stab_dir) plot
-
-plot-vel: update-vel | $(vel_dir)
-	$(MAKE) -C $(vel_dir) plot
+plot-%: update-% | %-dir
+	$(MAKE) -C ${@:plot-%=%-dir} plot
 
 $(dirs):
 	mkdir -p $@

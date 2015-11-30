@@ -1,11 +1,11 @@
 size=200
-q=0.1 1 5
-totalTime=0.5
-A=0
+q=1
+totalTime=10
+A=0 0.5 1 1.5 2 2.5 3 3.5 4
 dt=1e-7
-delta=0.15
+delta=
 delay=1
-flags=--range
+flags= --range --print --deltaDelta 0.01
 
 
 empty=
@@ -15,8 +15,7 @@ allVars:=$(foreach i, $(totalTime), _-t_$i)
 allVars:=$(if $(dt), $(foreach i, $(dt), $(addsuffix _-f_$i, $(allVars))))
 allVars:=$(if $(size), $(foreach i, $(size), $(addsuffix _-s_$i, $(allVars))))
 allVars:=$(if $q, $(foreach i, $q, $(addsuffix _-q_$i, $(allVars))))
-allVars:=$(if $A, $(foreach i, $A, $(addsuffix _-a_$i, $(allVars))))
-allVars:=$(if $(delta), $(foreach i, $(delta), $(addsuffix _-d_$i, $(allVars))))
+allVars:=$(if $A, $(foreach i, $A, $(addsuffix _-a_$i_-d_$(shell ./convert.py $i), $(allVars))))
 allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
 
 all: $(allVars)
@@ -27,4 +26,4 @@ $(allVars):
 
 plot:
 	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' $(plot_dir)/single.plot; done;
-	gnuplot $(plot_dir) steady.plot
+	gnuplot $(plot_dir)/dist.plot

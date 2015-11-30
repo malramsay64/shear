@@ -22,5 +22,11 @@ allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
 all: $(allVars)
 	mv data.out run.out
 
+.PHONY: $(allVars)
 $(allVars):
 	./shear $(subst _,$(space),$@) $(flags) >> data.out
+
+.PHONY: plot
+plot:
+	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' $(plot_dir)/single.plot; done;
+	gnuplot $(plot_dir)/vel.plot
