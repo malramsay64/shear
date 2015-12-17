@@ -3,10 +3,11 @@ q=1
 totalTime=1
 A=0 0.2 0.4 0.6 0.8 1.0 1.2 1.4
 dt=1e-7
-delta=-1e-2 -8e-3 -6e-3 -4e-3 -2e-3 0 2e-3 4e-3 6e-3 8e-3 1e-2
+delta=-1e-0 -8e-1 -6e-1 -4e-1 -2e-1 0 2e-1 4e-1 6e-1 8e-1 1e-0
 delay=1
 flags=-p
 
+qsub_flags=-j oe -l nodes=1:ppn=1 -l walltime=10:00:00 -l cput=10:00:00 -N vel -o /mnt/scratch/vel.out
 
 empty=
 space=$(empty) $(empty)
@@ -20,13 +21,12 @@ allVars:=$(if $(delta), $(foreach i, $(delta), $(addsuffix _-d_$i, $(allVars))))
 allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
 
 all: $(allVars)
-	mv data.out run.out
 
 .PHONY: $(allVars)
 $(allVars):
-	./shear $(subst _,$(space),$@) $(flags) >> data.out
+	echo "shear $(subst _,$(space),$@) $(flags) >> data.out" | qsub $(qsub_flags)
 
 .PHONY: plot
 plot:
-	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' $(plot_dir)/single.plot; done;
+	$(foreach f, $(wildcard *.dat), gnuplot -e 'fname="${f:%.dat=%}"' $(plot_dir)/single.plot;)
 	gnuplot $(plot_dir)/vel.plot

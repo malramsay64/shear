@@ -1,14 +1,17 @@
 stab_dir=stab-dir
 vel_dir=vel-dir
 dist_dir=dist-dir
+scale_dir=scale-dir
+stab_search_dir=stab_search-dir
 
-PATH:=$(PATH):$(shell pwd)/bin
+
 plot_dir=$(shell pwd)/plots
-lib_dir=$(shell pwd)/lib
-export plot_dir lib_dir PATH
+bin_dir=$(shell pwd)/bin
+PATH:=$(PATH):$(bin_dir)
+export plot_dir lib_dir PATH bin_dir
 
-dirs=$(stab_dir) $(vel_dir) $(dist_dir)
-builds=stab vel dist
+dirs=$(stab_dir) $(vel_dir) $(dist_dir) $(scale_dir) $(stab_search_dir)
+builds=stab vel dist scale stab_search
 
 all: $(builds)
 
@@ -24,7 +27,8 @@ $(dirs):
 
 update-%: %-dir
 	cp Makefile.${<:%-dir=%} $</Makefile
-	cp shear $</
 
-delete-%:
-	rm -r ${@:delete-%=%}-dir
+$(addprefix delete-,$(builds)):delete-%:
+	-rm -r ${@:delete-%=%}-dir
+
+delete-all: $(addprefix delete-,$(builds))

@@ -1,12 +1,13 @@
 size=200
 q=0.1 1 5
 totalTime=0.5
-A=0
+A=0 0.25 0.5 0.75 1 1.25 1.5 1.75 2 2.25 2.5 2.75 3 3.25 3.75 4
 dt=1e-7
-delta=0.15
+delta=0
 delay=1
-flags=--range
+flags=--range --Amax 5 --deltaA 0.25
 
+qsub_flags=-j oe -l nodes=1:ppn=1 -l walltime=20:00:00 -l cput=20:00:00 -N stab -o /mnt/scratch/stab.out
 
 empty=
 space=$(empty) $(empty)
@@ -20,11 +21,10 @@ allVars:=$(if $(delta), $(foreach i, $(delta), $(addsuffix _-d_$i, $(allVars))))
 allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
 
 all: $(allVars)
-	mv data.out run.out
 
 $(allVars):
-	./shear $(subst _,$(space),$@) $(flags) >> data.out
+	echo "cd $${PBS_O_WORKDIR}; shear $(subst _,$(space),$@) $(flags) >> data.out" | qsub $(qsub_flags)
 
 plot:
-	for f in $$(ls *.dat); do gnuplot -e 'filename="$${f%.*}"' $(plot_dir)/single.plot; done;
-	gnuplot $(plot_dir) steady.plot
+	$(foreach f, $(wildcard *.dat), gnuplot -e 'fname="${f:%.dat=%}"' $(plot_dir)/single.plot;)
+	gnuplot $(plot_dir)/steady.plot

@@ -1,11 +1,11 @@
-size=200
-q=1
-totalTime=1
-A=0 0.5 1 1.5 2 2.5 3 3.5 4
-dt=1e-7
-delta=
+size=100 200 
+q=0.1 1
+totalTime=0.01 0.1 
+A=0.1 1
+dt=1e-7 5e-7
+delta=0
 delay=1
-flags= --range --print
+flags=-p --range
 
 
 empty=
@@ -15,15 +15,18 @@ allVars:=$(foreach i, $(totalTime), _-t_$i)
 allVars:=$(if $(dt), $(foreach i, $(dt), $(addsuffix _-f_$i, $(allVars))))
 allVars:=$(if $(size), $(foreach i, $(size), $(addsuffix _-s_$i, $(allVars))))
 allVars:=$(if $q, $(foreach i, $q, $(addsuffix _-q_$i, $(allVars))))
-allVars:=$(if $A, $(foreach i, $A, $(addsuffix _-a_$i_-d_$(shell $(bin_dir)/convert.py $i), $(allVars))))
+allVars:=$(if $A, $(foreach i, $A, $(addsuffix _-a_$i, $(allVars))))
+allVars:=$(if $(delta), $(foreach i, $(delta), $(addsuffix _-d_$i, $(allVars))))
 allVars:=$(if $(delay), $(foreach i, $(delay), $(addsuffix _-m_$i, $(allVars))))
 
 all: $(allVars)
 	mv data.out run.out
 
+.PHONY: $(allVars)
 $(allVars):
 	shear $(subst _,$(space),$@) $(flags) >> data.out
 
+.PHONY: plot
 plot:
-	$(foreach f,$(wildcard *.dat), gnuplot -e 'fname="${f:%.dat=%}"' $(plot_dir)/single.plot;) 
-	export PATH=$(PATH); gnuplot $(plot_dir)/dist.plot
+	$(foreach f, $(wildcard *.dat), gnuplot -e 'fname="${f:%.dat=%}"' $(plot_dir)/single.plot;)
+	gnuplot $(plot_dir)/scale.plot
